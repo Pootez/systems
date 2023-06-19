@@ -22,6 +22,6 @@ class Sun {
         layer.fill(this.color)
         layer.stroke(lerpColor(this.color, color(255, 0, 0), 0.4))
         layer.strokeWeight(maxLength / 500)
-        layer.circle(width / 2, height / 2, this.size * maxLength / 10)
+        layer.circle(0, 0, this.size * maxLength / 10)
     }
 }

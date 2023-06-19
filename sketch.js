@@ -43,12 +43,16 @@ function windowResized() {
 
 function drawStars() {
     starLayer.clear()
+    starLayer.reset()
+    starLayer.translate(width/2, height/2)
     stars.forEach(star => star.display(starLayer))
     image(starLayer, -width / 2, -height / 2)
 }
 
 function drawSun() {
     sunLayer.clear()
+    sunLayer.reset()
+    sunLayer.translate(width/2, height/2)
     sun.display(sunLayer)
     image(sunLayer, -width / 2, -height / 2)
 }
