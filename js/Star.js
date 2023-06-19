@@ -1,8 +1,8 @@
 
 class Star {
     constructor() {
-        this.x = random()
-        this.y = random()
+        this.x = random(-1,1)
+        this.y = random(-1,1)
         this.lum = random(0.5, 1)
 
         this.offset = random(100)
@@ -15,6 +15,6 @@ class Star {
 
         layer.fill(255, 50 * starScale * 2)
         layer.noStroke()
-        layer.circle(this.x * maxLength, this.y * maxLength, this.lum * 2)
+        layer.circle(this.x * maxLength/2, this.y * maxLength/2, this.lum * 3 * maxLength/1000)
     }
 }
