@@ -11,14 +11,12 @@ let sun
 // p5 functions
 
 function setup() {
-    maxLength = max(windowWidth, windowHeight)
+    createCanvas(windowWidth, windowHeight)
+    maxLength = max(width, height)
     frameRate(FR)
 
-    createCanvas(windowWidth, windowHeight)
-    starLayer = createGraphics(windowWidth, windowHeight)
-    starLayer.translate(windowWidth / 2, windowHeight / 2)
-    sunLayer = createGraphics(windowWidth, windowHeight)
-    sunLayer.translate(windowWidth / 2, windowHeight / 2)
+    starLayer = createGraphics(width, height)
+    sunLayer = createGraphics(width, height)
 
     stars = []
     for (let i = 0; i < 500; i++) {
@@ -28,21 +26,17 @@ function setup() {
 }
 
 function draw() {
+    translate(width / 2, height / 2)
     background(0)
     drawStars()
     drawSun()
 }
 
 function windowResized() {
-    maxLength = max(windowWidth, windowHeight)
     resizeCanvas(windowWidth, windowHeight)
-    translate(windowWidth / 2, windowHeight / 2)
-    starLayer.resizeCanvas(windowWidth, windowHeight)
-    starLayer.reset()
-    starLayer.translate(windowWidth / 2, windowHeight / 2)
-    sunLayer.resizeCanvas(windowWidth, windowHeight)
-    sunLayer.reset()
-    sunLayer.translate(windowWidth / 2, windowHeight / 2)
+    maxLength = max(width, height)
+    starLayer.resizeCanvas(width, height)
+    sunLayer.resizeCanvas(width, height)
 }
 
 // Other functions
@@ -50,11 +44,11 @@ function windowResized() {
 function drawStars() {
     starLayer.clear()
     stars.forEach(star => star.display(starLayer))
-    image(starLayer, 0, 0)
+    image(starLayer, -width / 2, -height / 2)
 }
 
 function drawSun() {
     sunLayer.clear()
     sun.display(sunLayer)
-    image(sunLayer, 0, 0)
+    image(sunLayer, -width / 2, -height / 2)
 }
