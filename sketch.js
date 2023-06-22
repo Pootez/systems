@@ -1,5 +1,6 @@
 const FR = 60
 const worker = new Worker("js/worker.js")
+let openSimplex
 
 let starLayer
 let dustLayer
@@ -12,6 +13,9 @@ let seed
 let stars
 let sun
 
+const pc = 401 // Planet count
+let planetCount
+
 // p5 functions
 
 function setup() {
@@ -23,13 +27,8 @@ function setup() {
     sunLayer = createGraphics(width, height)
 
     seed = floor(random(1000000000000))
-    randomSeed(seed)
-    noiseSeed(seed)
+    generate(seed)
 
-    stars = []
-    for (let i = 0; i < 500; i++) {
-        stars.push(new Star())
-    }
     worker.onmessage = function (message) {
         let imageData = message.data
         createImageBitmap(imageData).then(imgBitmap => {
@@ -37,7 +36,6 @@ function setup() {
             dustLayer.drawingContext.drawImage(imgBitmap, 0, 0)
         })
     }
-    sun = new Sun()
 }
 
 function draw() {
@@ -56,6 +54,22 @@ function windowResized() {
 }
 
 // Other functions
+
+function generate(s) {
+    openSimplex = openSimplexNoise(s)
+    randomSeed(s)
+    noiseSeed(s)
+
+
+    stars = []
+    let starsCount = random(1000)
+    for (let i = 0; i < starsCount; i++) {
+        stars.push(new Star())
+    }
+    sun = new Sun()
+    planetCount = ceil(openSimplex.noise2D(1, pc) * 10)
+
+}
 
 function drawStars() {
     starLayer.clear()
