@@ -2,7 +2,7 @@
 class Sun {
     constructor() {
         this.color = color(255, 200, 0)
-        this.size = random(0.5, 1)
+        this.size = random(0.2, 1)
     }
 
     display(layer) {
