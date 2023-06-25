@@ -14,6 +14,7 @@ let maxLength // Max window dimension
 let seed // Seed in use
 
 let stars // Stars array
+let dust // Dust object
 let sun // Sun object
 let planets // Planets array
 
@@ -84,6 +85,9 @@ function generate(s) {
         stars.push(new Star())
     }
 
+    // Generate dust
+    dust = new Dust()
+
     // Generate sun
     sun = new Sun()
 
@@ -143,7 +147,8 @@ function drawDust() {
     worker.postMessage({
         element: "dust",
         seed: seed,
-        frameCount: frameCount
+        frameCount: frameCount,
+        data: dust
     })
     if (dustImage != undefined) { // If there is an image, display it
         noSmooth()
@@ -155,7 +160,7 @@ function drawSun() {
     // Draw sun glare
     let ctx = drawingContext
 
-    let gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, maxLength / 2)
+    let gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, maxLength / 3)
     gradient.addColorStop(0, color(red(sun.color), green(sun.color), blue(sun.color), 128).toString())
     gradient.addColorStop(1, color(0, 0).toString())
 

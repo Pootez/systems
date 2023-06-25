@@ -5,8 +5,8 @@ importScripts("../libraries/opensimplex.js")
 const largeScale = 0.05
 const mediumScale = 0.1
 const smallScale = 0.8
-const largeSpeed = 0.002
-const mediumSpeed = 0.006
+const largeSpeed = 0.0002
+const mediumSpeed = 0.0006
 const smallSpeed = 0.01
 
 // Response from main program
@@ -17,27 +17,27 @@ self.onmessage = function (message) {
         const data = message.data
         const seed = data.seed
         const frameCount = data.frameCount
-
-        const r = 201
-        const g = 202
-        const b = 203
-        const a = 204
+        const dust = data.data
+        const a = dust.colors[0]
+        const b = dust.colors[1]
+        const c = dust.colors[2]
+        const threshold = 0.3
 
         const openSimplex = openSimplexNoise(seed) // Create noise API
-        
+
         // Get pixel values
         let pixels = []
         for (let y = 0; y < size; y++) {
             for (let x = 0; x < size; x++) {
                 const large = (openSimplex.noise3D(x * largeScale, y * largeScale, frameCount * largeSpeed + 200) + 1) / 2
                 const small = (openSimplex.noise3D(x * mediumScale, y * mediumScale, frameCount * mediumSpeed) + 1) / 2
-                const value = (large + large + small) * 255 / 3
+                const value = large * large * small
 
                 let index = (x + y * size) * 4
-                pixels[index] = (openSimplex.noise2D(1, r) + 1) * 128
-                pixels[index + 1] = (openSimplex.noise2D(1, g) + 1) * 128
-                pixels[index + 2] = (openSimplex.noise2D(1, b) + 1) * 128
-                pixels[index + 3] = ((openSimplex.noise2D(1, a) + 1) / 2 + 0.5) * value
+                pixels[index] = value < threshold ? lerp(a[0], b[0], Math.floor((value / threshold) * 4) / 4) : lerp(c[0], b[0], Math.floor(((value - threshold) / (1 - threshold)) * 4) / 4)
+                pixels[index + 1] = value < threshold ? lerp(a[1], b[1], Math.floor((value / threshold) * 4) / 4) : lerp(c[1], b[1], Math.floor(((value - threshold) / (1 - threshold)) * 4) / 4)
+                pixels[index + 2] = value < threshold ? lerp(a[2], b[2], Math.floor((value / threshold) * 4) / 4) : lerp(c[2], b[2], Math.floor(((value - threshold) / (1 - threshold)) * 4) / 4)
+                pixels[index + 3] = Math.pow(value, 0.6) * 255
             }
         }
 
@@ -57,8 +57,8 @@ self.onmessage = function (message) {
 
         const openSimplex = openSimplexNoise(seed) // Create noise API
         const size = Math.ceil(sun.size * 16) // Determine size
-        
-        
+
+
         // Get pixel values
         let pixels = []
         for (let y = 0; y < size; y++) {
