@@ -5,8 +5,8 @@ let openSimplex // OpenSmiplex noise API
 
 // Graphics / Layers
 let starLayer
-let dustLayer
-let sunLayer
+let dustImage
+let sunImage
 let planetLayer
 
 let maxLength // Max window dimension
@@ -28,7 +28,6 @@ function setup() {
     frameRate(FR)
 
     starLayer = createGraphics(width, height)
-    sunLayer = createGraphics(width, height)
     planetLayer = createGraphics(width, height)
 
     // Generate seed
@@ -39,8 +38,15 @@ function setup() {
         if (message.data.element == "dust") {
             let imageData = message.data.data
             createImageBitmap(imageData).then(imgBitmap => {
-                dustLayer = createImage(imgBitmap.width, imgBitmap.height)
-                dustLayer.drawingContext.drawImage(imgBitmap, 0, 0)
+                dustImage = createImage(imgBitmap.width, imgBitmap.height)
+                dustImage.drawingContext.drawImage(imgBitmap, 0, 0)
+            })
+        }
+        if (message.data.element == "sun") {
+            let imageData = message.data.data
+            createImageBitmap(imageData).then(imgBitmap => {
+                sunImage = createImage(imgBitmap.width, imgBitmap.height)
+                sunImage.drawingContext.drawImage(imgBitmap, 0, 0)
             })
         }
     }
@@ -59,7 +65,6 @@ function windowResized() {
     resizeCanvas(windowWidth, windowHeight)
     maxLength = max(width, height)
     starLayer.resizeCanvas(width, height)
-    sunLayer.resizeCanvas(width, height)
     planetLayer.resizeCanvas(width, height)
 }
 
@@ -137,22 +142,16 @@ function drawDust() {
     // Request image from Web Worker
     worker.postMessage({
         element: "dust",
-        data: {
-            seed: seed,
-            frameCount: frameCount
-        }
+        seed: seed,
+        frameCount: frameCount
     })
-    if (dustLayer != undefined) { // If there is an image, display it
+    if (dustImage != undefined) { // If there is an image, display it
         noSmooth()
-        image(dustLayer, -maxLength / 2, -maxLength / 2, maxLength, maxLength)
+        image(dustImage, -maxLength / 2, -maxLength / 2, maxLength, maxLength)
     }
 }
 
 function drawSun() {
-    sunLayer.clear()
-    sunLayer.reset()
-    sunLayer.translate(width / 2, height / 2)
-
     // Draw sun glare
     let ctx = drawingContext
 
@@ -166,14 +165,17 @@ function drawSun() {
     ctx.arc(0, 0, maxLength, 0, 2 * Math.PI)
     ctx.fill()
 
-    // Draw sun
-    sunLayer.fill(sun.color)
-    sunLayer.stroke(lerpColor(sun.color, color(255, 0, 0), 0.4))
-    sunLayer.strokeWeight(maxLength / 500)
-    sunLayer.circle(0, 0, sun.size * maxLength * 2 / distance)
-
-    // Display layer
-    image(sunLayer, -width / 2, -height / 2)
+    // Request image from Web Worker
+    worker.postMessage({
+        element: "sun",
+        seed: seed,
+        frameCount: frameCount,
+        data: sun
+    })
+    if (sunImage != undefined) { // If there is an image, display it
+        const sunRadius = sun.size * maxLength / distance
+        image(sunImage, -sunRadius, -sunRadius, sunRadius * 2, sunRadius * 2)
+    }
 }
 
 function drawPlanets() {
