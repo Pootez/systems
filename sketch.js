@@ -182,16 +182,16 @@ function drawPlanets() {
             planetLayer.circle(cos(planetAngle) * planetDist + cos(moonAngle) * moonDist, sin(planetAngle) * planetDist + sin(moonAngle) * moonDist, moonRadius)
 
             planetLayer.noFill()
-            planetLayer.stroke(200, 100)
-            planetLayer.strokeWeight(moonRadius * 0.5)
+            planetLayer.stroke(255, 50)
+            planetLayer.strokeWeight(moonRadius * 0.2)
             planetLayer.arc(cos(planetAngle) * planetDist, sin(planetAngle) * planetDist, moonDist * 2, moonDist * 2, moonAngle + moonSafeAngle, moonAngle - moonSafeAngle)
 
             if (planet.moons.length == j + 1) planetSafeAngle = (moonDist + moonRadius + planetRadius * 0.4) / planetDist
         }
 
         planetLayer.noFill()
-        planetLayer.stroke(200, 100)
-        planetLayer.strokeWeight(planetRadius * 0.4)
+        planetLayer.stroke(255, 50)
+        planetLayer.strokeWeight(planetRadius * 0.2)
         planetLayer.arc(0, 0, planetDist * 2, planetDist * 2, planetAngle + planetSafeAngle, planetAngle - planetSafeAngle)
     }
 
