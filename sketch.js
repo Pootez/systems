@@ -163,7 +163,7 @@ function drawPlanets() {
         const planet = planets[i]
         const planetDist = (planet.dist + planet.size * 0.5) * maxLength / distance
         const planetRadius = planet.size * maxLength / distance
-        const planetAngle = planet.angle * TWO_PI + frameCount * sun.size * 4000 / (FR * planet.size * pow(planetDist, 2))
+        const planetAngle = planet.angle * TWO_PI + frameCount * sun.size * 2000 / (FR * pow(planetDist, 2))
         let planetSafeAngle = planetRadius / planetDist
 
         planetLayer.fill(color(planet.primary))
@@ -174,7 +174,7 @@ function drawPlanets() {
             const moon = planet.moons[j]
             const moonDist = (moon.dist + moon.size * 0.5) * maxLength / distance
             const moonRadius = moon.size * maxLength / distance
-            const moonAngle = moon.angle * TWO_PI + frameCount * planet.size * 200 / (FR * moon.size * pow(moonDist, 2))
+            const moonAngle = moon.angle * TWO_PI + frameCount * planet.size * 200 / (FR * pow(moonDist, 2))
             const moonSafeAngle = moonRadius / moonDist
 
             planetLayer.fill(color(moon.primary))
