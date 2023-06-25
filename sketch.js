@@ -91,7 +91,7 @@ function generate(s) {
             let moon = {}
             moon.primary = color(random(255), random(255), random(255)).toString()
             moon.secondary = color(random(255), random(255), random(255)).toString()
-            moonDistance += random(0.5, 3) / 4
+            moonDistance += random(0.1, 1) / 4
             moon.dist = moonDistance + planet.size
             moon.size = random(0.2, 1) / 4
             moonDistance += moon.size
@@ -99,7 +99,7 @@ function generate(s) {
             planet.moons.push(moon)
         }
         distance += moonDistance
-        distance += random(0.5, 3)
+        distance += random(0.1, 1)
         planet.dist = distance
         distance += moonDistance
 
@@ -162,7 +162,7 @@ function drawPlanets() {
         const planet = planets[i]
         const planetDist = (planet.dist + planet.size * 0.5) * maxLength / distance
         const planetRadius = planet.size * maxLength / distance
-        const planetAngle = planet.angle * TWO_PI + frameCount * TWO_PI * sun.size * 120 / (FR * planet.size * pow(planetDist, 2))
+        const planetAngle = planet.angle * TWO_PI + frameCount * sun.size * 4000 / (FR * planet.size * pow(planetDist, 2))
         let planetSafeAngle = planetRadius / planetDist
 
         planetLayer.fill(color(planet.primary))
@@ -173,7 +173,7 @@ function drawPlanets() {
             const moon = planet.moons[j]
             const moonDist = (moon.dist + moon.size * 0.5) * maxLength / distance
             const moonRadius = moon.size * maxLength / distance
-            const moonAngle = moon.angle * TWO_PI + frameCount * TWO_PI * planet.size * 5 / (FR * moon.size * pow(moonDist, 2))
+            const moonAngle = moon.angle * TWO_PI + frameCount * planet.size * 200 / (FR * moon.size * pow(moonDist, 2))
             const moonSafeAngle = moonRadius / moonDist
 
             planetLayer.fill(color(moon.primary))
