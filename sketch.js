@@ -72,28 +72,28 @@ function generate(s) {
         stars.push(new Star())
     }
     sun = new Sun()
-    let planetCount = ceil(pow((random()), 1.5) * 8)
+    let planetCount = ceil(pow((random()), 1.5) * 6)
     planets = []
-    distance = sun.size * 0.5
+    distance = sun.size
     for (let i = 0; i < planetCount; i++) {
         let planet = {}
         planet.primary = color(random(255), random(255), random(255)).toString()
         planet.secondary = color(random(255), random(255), random(255)).toString()
 
         planet.angle = random()
-        planet.size = random(0.2, 1)
+        planet.size = random(0.4, 1)
         distance += planet.size
 
-        let moonCount = floor(pow(random(), 4) * 6)
+        let moonCount = floor(pow(random(), 4) * 5)
         planet.moons = []
         let moonDistance = 0
         for (let j = 0; j < moonCount; j++) {
             let moon = {}
             moon.primary = color(random(255), random(255), random(255)).toString()
             moon.secondary = color(random(255), random(255), random(255)).toString()
-            moonDistance += random(0.1, 1) / 4
-            moon.dist = moonDistance + planet.size
-            moon.size = random(0.2, 1) / 4
+            moonDistance += random(0.1, 1) * planet.size
+            moon.dist = moonDistance + planet.size / 2
+            moon.size = random(0.5, 1) * planet.size / 2
             moonDistance += moon.size
             moon.angle = random()
             planet.moons.push(moon)
@@ -101,6 +101,7 @@ function generate(s) {
         distance += moonDistance
         distance += random(0.1, 1)
         planet.dist = distance
+        distance += planet.size
         distance += moonDistance
 
         planets.push(planet)
@@ -185,7 +186,7 @@ function drawPlanets() {
             planetLayer.strokeWeight(moonRadius * 0.5)
             planetLayer.arc(cos(planetAngle) * planetDist, sin(planetAngle) * planetDist, moonDist * 2, moonDist * 2, moonAngle + moonSafeAngle, moonAngle - moonSafeAngle)
 
-            if (planet.moons.length == j + 1) planetSafeAngle = (moonDist + moonRadius) * 1.2 / planetDist
+            if (planet.moons.length == j + 1) planetSafeAngle = (moonDist + moonRadius + planetRadius * 0.4) / planetDist
         }
 
         planetLayer.noFill()
