@@ -1,26 +1,28 @@
-const FR = 60
+const FR = 60 // Framerate
 const seedSize = 1000000000000
-const worker = new Worker("js/worker.js")
-let openSimplex
+const worker = new Worker("js/worker.js") // Web Worker for noise map processing
+let openSimplex // OpenSmiplex noise API
 
+// Graphics / Layers
 let starLayer
 let dustLayer
 let sunLayer
 let planetLayer
 
-let maxLength
+let maxLength // Max window dimension
 
-let seed
+let seed // Seed in use
 
-let stars
-let sun
-let planets
+let stars // Stars array
+let sun // Sun object
+let planets // Planets array
 
-let distance
+let distance // Cumulative distance of astral bodies
 
 // p5 functions
 
 function setup() {
+    // Setup canvas and graphics
     createCanvas(windowWidth, windowHeight)
     maxLength = max(width, height)
     frameRate(FR)
@@ -29,8 +31,10 @@ function setup() {
     sunLayer = createGraphics(width, height)
     planetLayer = createGraphics(width, height)
 
+    // Generate seed
     generate(floor(random(seedSize)))
 
+    // Web worker response function
     worker.onmessage = function (message) {
         let imageData = message.data
         createImageBitmap(imageData).then(imgBitmap => {
@@ -60,22 +64,28 @@ function windowResized() {
 // Other functions
 
 function generate(s) {
+    // Set seed
     seed = s
     openSimplex = openSimplexNoise(s)
     randomSeed(s)
     noiseSeed(s)
 
-
+    // Generate stars
     stars = []
     let starsCount = random(1000)
     for (let i = 0; i < starsCount; i++) {
         stars.push(new Star())
     }
+
+    // Generate sun
     sun = new Sun()
+
+    // Generate planets
     let planetCount = ceil(pow((random()), 1.5) * 6)
     planets = []
-    distance = sun.size
+    distance = sun.size // Increase distance to sun surface
     for (let i = 0; i < planetCount; i++) {
+        // Create planet
         let planet = {}
         planet.primary = color(random(255), random(255), random(255)).toString()
         planet.secondary = color(random(255), random(255), random(255)).toString()
@@ -91,19 +101,22 @@ function generate(s) {
             let moon = {}
             moon.primary = color(random(255), random(255), random(255)).toString()
             moon.secondary = color(random(255), random(255), random(255)).toString()
-            moonDistance += random(0.1, 1) * planet.size
+            moonDistance += random(0.1, 0.6) * planet.size
             moon.dist = moonDistance + planet.size / 2
             moon.size = random(0.5, 1) * planet.size / 2
             moonDistance += moon.size
             moon.angle = random()
             planet.moons.push(moon)
         }
+
+        // Adjust planet distance
         distance += moonDistance
         distance += random(0.1, 1)
         planet.dist = distance
         distance += planet.size
         distance += moonDistance
 
+        // Add to array
         planets.push(planet)
     }
 
@@ -119,11 +132,12 @@ function drawStars() {
 }
 
 function drawDust() {
+    // Request image from Web Worker
     worker.postMessage({
         seed: seed,
         frameCount: frameCount
     })
-    if (dustLayer != undefined) {
+    if (dustLayer != undefined) { // If there is an image, display it
         noSmooth()
         image(dustLayer, -maxLength / 2, -maxLength / 2, maxLength, maxLength)
     }
@@ -134,6 +148,7 @@ function drawSun() {
     sunLayer.reset()
     sunLayer.translate(width / 2, height / 2)
 
+    // Draw sun glare
     let ctx = drawingContext
 
     let gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, maxLength / 2)
@@ -146,11 +161,13 @@ function drawSun() {
     ctx.arc(0, 0, maxLength, 0, 2 * Math.PI)
     ctx.fill()
 
+    // Draw sun
     sunLayer.fill(sun.color)
     sunLayer.stroke(lerpColor(sun.color, color(255, 0, 0), 0.4))
     sunLayer.strokeWeight(maxLength / 500)
     sunLayer.circle(0, 0, sun.size * maxLength * 2 / distance)
 
+    // Display layer
     image(sunLayer, -width / 2, -height / 2)
 }
 
@@ -159,41 +176,51 @@ function drawPlanets() {
     planetLayer.reset()
     planetLayer.translate(width / 2, height / 2)
 
+    // Draw planets
     for (let i = 0; i < planets.length; i++) {
+        // Get values
         const planet = planets[i]
         const planetDist = (planet.dist + planet.size * 0.5) * maxLength / distance
         const planetRadius = planet.size * maxLength / distance
         const planetAngle = planet.angle * TWO_PI + frameCount * sun.size * 2000 / (FR * pow(planetDist, 2))
         let planetSafeAngle = planetRadius / planetDist
 
+        // Draw planet
         planetLayer.fill(color(planet.primary))
         planetLayer.noStroke()
         planetLayer.circle(cos(planetAngle) * planetDist, sin(planetAngle) * planetDist, planetRadius)
 
+        // Draw moons
         for (let j = 0; j < planet.moons.length; j++) {
+            // Get values
             const moon = planet.moons[j]
             const moonDist = (moon.dist + moon.size * 0.5) * maxLength / distance
             const moonRadius = moon.size * maxLength / distance
             const moonAngle = moon.angle * TWO_PI + frameCount * planet.size * 200 / (FR * pow(moonDist, 2))
             const moonSafeAngle = moonRadius / moonDist
 
+            // Draw moon
             planetLayer.fill(color(moon.primary))
             planetLayer.noStroke()
             planetLayer.circle(cos(planetAngle) * planetDist + cos(moonAngle) * moonDist, sin(planetAngle) * planetDist + sin(moonAngle) * moonDist, moonRadius)
 
+            // Draw moon orbit
             planetLayer.noFill()
             planetLayer.stroke(255, 50)
             planetLayer.strokeWeight(moonRadius * 0.2)
             planetLayer.arc(cos(planetAngle) * planetDist, sin(planetAngle) * planetDist, moonDist * 2, moonDist * 2, moonAngle + moonSafeAngle, moonAngle - moonSafeAngle)
 
+            // Adjust the orbit gap for planets
             if (planet.moons.length == j + 1) planetSafeAngle = (moonDist + moonRadius + planetRadius * 0.4) / planetDist
         }
 
+        // Draw planet orbit
         planetLayer.noFill()
         planetLayer.stroke(255, 50)
         planetLayer.strokeWeight(planetRadius * 0.2)
         planetLayer.arc(0, 0, planetDist * 2, planetDist * 2, planetAngle + planetSafeAngle, planetAngle - planetSafeAngle)
     }
 
+    // Display layer
     image(planetLayer, -width / 2, -height / 2)
 }

@@ -12,14 +12,17 @@ const smallScale = 0.1
 const largeSpeed = 0.002
 const smallSpeed = 0.006
 
+// Response from main program
 self.onmessage = function (message) {
+    // Retrieve data
     let data = message.data
     let seed = data.seed
     let frameCount = data.frameCount
 
     let pixels = []
-    const openSimplex = openSimplexNoise(seed)
+    const openSimplex = openSimplexNoise(seed) // Create noise API
 
+    // Get pixel values
     for (let y = 0; y < size; y++) {
         for (let x = 0; x < size; x++) {
             const large = (openSimplex.noise3D(x * largeScale, y * largeScale, frameCount * largeSpeed + 200) + 1) / 2
@@ -33,6 +36,7 @@ self.onmessage = function (message) {
         }
     }
 
+    // Post image data to main program
     const imageData = new ImageData(new Uint8ClampedArray(pixels), size, size)
     postMessage(imageData)
 }
