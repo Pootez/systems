@@ -36,11 +36,13 @@ function setup() {
 
     // Web worker response function
     worker.onmessage = function (message) {
-        let imageData = message.data
-        createImageBitmap(imageData).then(imgBitmap => {
-            dustLayer = createImage(imgBitmap.width, imgBitmap.height)
-            dustLayer.drawingContext.drawImage(imgBitmap, 0, 0)
-        })
+        if (message.data.element == "dust") {
+            let imageData = message.data.data
+            createImageBitmap(imageData).then(imgBitmap => {
+                dustLayer = createImage(imgBitmap.width, imgBitmap.height)
+                dustLayer.drawingContext.drawImage(imgBitmap, 0, 0)
+            })
+        }
     }
 }
 
@@ -134,8 +136,11 @@ function drawStars() {
 function drawDust() {
     // Request image from Web Worker
     worker.postMessage({
-        seed: seed,
-        frameCount: frameCount
+        element: "dust",
+        data: {
+            seed: seed,
+            frameCount: frameCount
+        }
     })
     if (dustLayer != undefined) { // If there is an image, display it
         noSmooth()
