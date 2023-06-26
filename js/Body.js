@@ -5,8 +5,8 @@ class Body {
         dist = random(0.1, 1)
     ) {
         this.colors = [
-            [random(55, 255), random(55, 255), random(55, 255)],
-            [random(55, 255), random(55, 255), random(55, 255)]
+            [random(55, 220), random(55, 220), random(55, 220)],
+            [random(55, 220), random(55, 220), random(55, 220)]
         ]
         this.size = size
         this.dist = dist
