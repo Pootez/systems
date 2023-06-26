@@ -26,7 +26,8 @@ let distance // Cumulative distance of astral bodies
 function setup() {
     // Setup canvas and graphics
     maxLength = min(windowWidth, windowHeight)
-    createCanvas(maxLength, maxLength)
+    canvas = createCanvas(maxLength, maxLength)
+    canvas.parent("canvas-container")
     frameRate(FR)
     noSmooth()
 
