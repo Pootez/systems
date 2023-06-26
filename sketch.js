@@ -1,4 +1,4 @@
-const FR = 60 // Framerate
+const FR = 30 // Framerate
 const seedSize = 1000000000000
 const worker = new Worker("js/worker.js") // Web Worker for noise map processing
 let openSimplex // OpenSmiplex noise API
