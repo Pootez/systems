@@ -127,7 +127,7 @@ function generate(s) {
         distance += planets[i].Area * 2
     }
 
-    distance = distance * 2.4
+    distance = distance * 2.6
 }
 
 function drawStars() {
