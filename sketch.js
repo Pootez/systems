@@ -92,43 +92,18 @@ function generate(s) {
     sun = new Sun()
 
     // Generate planets
-    let planetCount = ceil(pow((random()), 1.5) * 6)
+    const planetCount = ceil(pow((random()), 1.5) * 6)
     planets = []
     distance = sun.size // Increase distance to sun surface
     for (let i = 0; i < planetCount; i++) {
         // Create planet
-        let planet = {}
-        planet.primary = color(random(255), random(255), random(255)).toString()
-        planet.secondary = color(random(255), random(255), random(255)).toString()
+        planets.push(new Body())
 
-        planet.angle = random()
-        planet.size = random(0.4, 1)
-        distance += planet.size
+        const moonCount = floor(pow(random(), 4) * 5)
+        planets[i].createMoons(moonCount)
 
-        let moonCount = floor(pow(random(), 4) * 5)
-        planet.moons = []
-        let moonDistance = 0
-        for (let j = 0; j < moonCount; j++) {
-            let moon = {}
-            moon.primary = color(random(255), random(255), random(255)).toString()
-            moon.secondary = color(random(255), random(255), random(255)).toString()
-            moonDistance += random(0.1, 0.6) * planet.size
-            moon.dist = moonDistance + planet.size / 2
-            moon.size = random(0.5, 1) * planet.size / 2
-            moonDistance += moon.size
-            moon.angle = random()
-            planet.moons.push(moon)
-        }
-
-        // Adjust planet distance
-        distance += moonDistance
-        distance += random(0.1, 1)
-        planet.dist = distance
-        distance += planet.size
-        distance += moonDistance
-
-        // Add to array
-        planets.push(planet)
+        distance += planets[i].dist
+        distance += planets[i].Area * 2
     }
 
     distance = distance * 3
@@ -188,31 +163,36 @@ function drawPlanets() {
     planetLayer.reset()
     planetLayer.translate(width / 2, height / 2)
 
+    let planetPointer = sun.size
+
     // Draw planets
     for (let i = 0; i < planets.length; i++) {
         // Get values
         const planet = planets[i]
-        const planetDist = (planet.dist + planet.size * 0.5) * maxLength / distance
+        planetPointer += (planet.Area + planet.dist)
+        const planetDist = (planetPointer + planet.dist) * maxLength / distance
         const planetRadius = planet.size * maxLength / distance
         const planetAngle = planet.angle * TWO_PI + frameCount * sun.size * 2000 / (FR * pow(planetDist, 2))
         let planetSafeAngle = planetRadius / planetDist
 
         // Draw planet
-        planetLayer.fill(color(planet.primary))
+        planetLayer.fill(color(planet.colors[0][0], planet.colors[0][1], planet.colors[0][2]))
         planetLayer.noStroke()
         planetLayer.circle(cos(planetAngle) * planetDist, sin(planetAngle) * planetDist, planetRadius)
 
+        let moonPointer = planet.size
         // Draw moons
         for (let j = 0; j < planet.moons.length; j++) {
             // Get values
             const moon = planet.moons[j]
-            const moonDist = (moon.dist + moon.size * 0.5) * maxLength / distance
+            moonPointer += (moon.Area + moon.dist)
+            const moonDist = (moonPointer + moon.dist) * maxLength / distance
             const moonRadius = moon.size * maxLength / distance
             const moonAngle = moon.angle * TWO_PI + frameCount * planet.size * 200 / (FR * pow(moonDist, 2))
             const moonSafeAngle = moonRadius / moonDist
 
             // Draw moon
-            planetLayer.fill(color(moon.primary))
+            planetLayer.fill(color(moon.colors[0][0], moon.colors[0][1], moon.colors[0][2]))
             planetLayer.noStroke()
             planetLayer.circle(cos(planetAngle) * planetDist + cos(moonAngle) * moonDist, sin(planetAngle) * planetDist + sin(moonAngle) * moonDist, moonRadius)
 
@@ -221,6 +201,8 @@ function drawPlanets() {
             planetLayer.stroke(255, 50)
             planetLayer.strokeWeight(moonRadius * 0.2)
             planetLayer.arc(cos(planetAngle) * planetDist, sin(planetAngle) * planetDist, moonDist * 2, moonDist * 2, moonAngle + moonSafeAngle, moonAngle - moonSafeAngle)
+
+            moonPointer += moon.Area
 
             // Adjust the orbit gap for planets
             if (planet.moons.length == j + 1) planetSafeAngle = (moonDist + moonRadius + planetRadius * 0.4) / planetDist
@@ -231,6 +213,8 @@ function drawPlanets() {
         planetLayer.stroke(255, 50)
         planetLayer.strokeWeight(planetRadius * 0.2)
         planetLayer.arc(0, 0, planetDist * 2, planetDist * 2, planetAngle + planetSafeAngle, planetAngle - planetSafeAngle)
+
+        planetPointer += planet.Area
     }
 
     // Display layer
