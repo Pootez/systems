@@ -24,8 +24,8 @@ let distance // Cumulative distance of astral bodies
 
 function setup() {
     // Setup canvas and graphics
-    createCanvas(windowWidth, windowHeight)
-    maxLength = max(width, height)
+    maxLength = min(windowWidth, windowHeight)
+    createCanvas(maxLength, maxLength)
     frameRate(FR)
 
     starLayer = createGraphics(width, height)
@@ -63,8 +63,8 @@ function draw() {
 }
 
 function windowResized() {
-    resizeCanvas(windowWidth, windowHeight)
-    maxLength = max(width, height)
+    maxLength = min(windowWidth, windowHeight)
+    resizeCanvas(maxLength, maxLength)
     starLayer.resizeCanvas(width, height)
     planetLayer.resizeCanvas(width, height)
 }
