@@ -190,6 +190,7 @@ function drawPlanets() {
 
     planetLayer.clear()
     planetLayer.noSmooth()
+    planetLayer.imageMode(CENTER)
 
     let planetPointer = sun.size
 
@@ -210,7 +211,7 @@ function drawPlanets() {
             planetLayer.translate(width / 2, height / 2)
             planetLayer.translate(cos(planetAngle) * planetDist, sin(planetAngle) * planetDist)
             planetLayer.rotate(planet.rot * TWO_PI + planet.rotSpeed * frameCount / (planet.size * 100))
-            planetLayer.image(planetImage, -planetRadius, -planetRadius, planetRadius * 2, planetRadius * 2)
+            planetLayer.image(planetImage, 0, 0, planetRadius * 2, planetRadius * 2)
         }
 
         let moonPointer = planet.size
@@ -231,7 +232,7 @@ function drawPlanets() {
                 planetLayer.translate(width / 2, height / 2)
                 planetLayer.translate(cos(planetAngle) * planetDist + cos(moonAngle) * moonDist, sin(planetAngle) * planetDist + sin(moonAngle) * moonDist)
                 planetLayer.rotate(moon.rot * TWO_PI + moon.rotSpeed * frameCount / (moon.size * 100))
-                planetLayer.image(moonImage, -moonRadius, -moonRadius, moonRadius * 2, moonRadius * 2)
+                planetLayer.image(moonImage, 0, 0, moonRadius * 2, moonRadius * 2)
             }
 
             // Draw moon orbit
