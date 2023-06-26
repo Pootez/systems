@@ -81,6 +81,80 @@ self.onmessage = function (message) {
             data: imageData
         })
     }
+    if (message.data.element == "planets") {
+        // Retrieve data
+        const data = message.data
+        const seed = data.seed
+        const frameCount = data.frameCount
+        const planets = data.data
+
+        const openSimplex = openSimplexNoise(seed) // Create noise API
+
+        let images = []
+        for (let i = 0; i < planets.length; i++) {
+            const planet = planets[i]
+            let size = Math.ceil(planet.size * 32) * 2 // Determine size
+
+            let a = planet.colors[0]
+            let b = planet.colors[1]
+            let threshold = planet.threshold
+
+            // Get pixel values
+            let pixels = []
+            for (let y = 0; y < size; y++) {
+                for (let x = 0; x < size; x++) {
+                    const mediumNoise = Math.pow((openSimplex.noise3D(x * mediumScale, y * mediumScale, i * 10) + 1) / 2, 2)
+                    const smallNoise = Math.pow((openSimplex.noise3D(x * mediumScale * 4, y * mediumScale * 4, i * 20) + 1) / 2, 2)
+                    const value = lerp(mediumNoise, smallNoise, 0.4)
+                    const distance = Math.sqrt(Math.pow(x - size / 2, 2) + Math.pow(y - size / 2, 2)) / (size / 2.8)
+
+                    let index = (x + y * size) * 4
+                    pixels[index] = value < threshold ? lerp(a[0], 0, Math.floor((value / threshold) * 4) / 6) : lerp(b[0], 0, Math.floor(((value - threshold) / (1 - threshold)) * 4) / 6)
+                    pixels[index + 1] = value < threshold ? lerp(a[1], 0, Math.floor((value / threshold) * 4) / 6) : lerp(b[1], 0, Math.floor(((value - threshold) / (1 - threshold)) * 4) / 6)
+                    pixels[index + 2] = value < threshold ? lerp(a[2], 0, Math.floor((value / threshold) * 4) / 6) : lerp(b[2], 0, Math.floor(((value - threshold) / (1 - threshold)) * 4) / 6)
+                    pixels[index + 3] = distance <= 1 ? Math.ceil((1 - Math.pow(distance, 20)) * 255) : 0
+                }
+            }
+
+            const planetImage = new ImageData(new Uint8ClampedArray(pixels), size, size)
+            images.push({
+                image: planetImage,
+                moons: []
+            })
+
+            for (let j = 0; j < planet.moons.length; j++) {
+                const moon = planet.moons[j]
+                size = Math.ceil(moon.size * 64) * 2 // Determine size
+
+                a = moon.colors[0]
+                b = moon.colors[1]
+                threshold = moon.threshold
+
+                pixels = []
+                for (let y = 0; y < size; y++) {
+                    for (let x = 0; x < size; x++) {
+                        const mediumNoise = Math.pow((openSimplex.noise3D(x * mediumScale, y * mediumScale, j * 100 + i * 10) + 1) / 2, 2)
+                        const smallNoise = Math.pow((openSimplex.noise3D(x * mediumScale * 4, y * mediumScale * 4, j * 100 + i * 20) + 1) / 2, 2)
+                        const value = lerp(mediumNoise, smallNoise, 0.4)
+                        const distance = Math.sqrt(Math.pow(x - size / 2, 2) + Math.pow(y - size / 2, 2)) / (size / 2.8)
+
+                        let index = (x + y * size) * 4
+                        pixels[index] = value < threshold ? lerp(a[0], 0, Math.floor((value / threshold) * 4) / 6) : lerp(b[0], 0, Math.floor(((value - threshold) / (1 - threshold)) * 4) / 6)
+                        pixels[index + 1] = value < threshold ? lerp(a[1], 0, Math.floor((value / threshold) * 4) / 6) : lerp(b[1], 0, Math.floor(((value - threshold) / (1 - threshold)) * 4) / 6)
+                        pixels[index + 2] = value < threshold ? lerp(a[2], 0, Math.floor((value / threshold) * 4) / 6) : lerp(b[2], 0, Math.floor(((value - threshold) / (1 - threshold)) * 4) / 6)
+                        pixels[index + 3] = distance <= 1 ? Math.ceil((1 - Math.pow(distance, 20)) * 255) : 0
+                    }
+                }
+
+                const moonImage = new ImageData(new Uint8ClampedArray(pixels), size, size)
+                images[i].moons.push(moonImage)
+            }
+        }
+        postMessage({
+            element: "planets",
+            data: images
+        })
+    }
 }
 
 function lerp(a, b, t) {

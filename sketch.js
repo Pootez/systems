@@ -7,6 +7,7 @@ let openSimplex // OpenSmiplex noise API
 let starLayer
 let dustImage
 let sunImage
+let planetImages
 let planetLayer
 
 let maxLength // Max window dimension
@@ -27,6 +28,7 @@ function setup() {
     maxLength = min(windowWidth, windowHeight)
     createCanvas(maxLength, maxLength)
     frameRate(FR)
+    noSmooth()
 
     starLayer = createGraphics(width, height)
     planetLayer = createGraphics(width, height)
@@ -49,6 +51,25 @@ function setup() {
                 sunImage = createImage(imgBitmap.width, imgBitmap.height)
                 sunImage.drawingContext.drawImage(imgBitmap, 0, 0)
             })
+        }
+        if (message.data.element == "planets") {
+            planetImages = []
+            let imagesData = message.data.data
+            for (let i = 0; i < imagesData.length; i++) {
+                let planetImageData = imagesData[i].image
+                createImageBitmap(planetImageData).then(imgBitmap => {
+                    planetImages[i] = { moons: [] }
+                    planetImages[i].image = createImage(imgBitmap.width, imgBitmap.height)
+                    planetImages[i].image.drawingContext.drawImage(imgBitmap, 0, 0)
+                })
+                for (let j = 0; j < imagesData[i].moons.length; j++) {
+                    let moonImageData = imagesData[i].moons[j]
+                    createImageBitmap(moonImageData).then(imgBitmap => {
+                        planetImages[i].moons[j] = createImage(imgBitmap.width, imgBitmap.height)
+                        planetImages[i].moons[j].drawingContext.drawImage(imgBitmap, 0, 0)
+                    })
+                }
+            }
         }
     }
 }
@@ -106,7 +127,7 @@ function generate(s) {
         distance += planets[i].Area * 2
     }
 
-    distance = distance * 3
+    distance = distance * 2.4
 }
 
 function drawStars() {
@@ -159,9 +180,16 @@ function drawSun() {
 }
 
 function drawPlanets() {
+    // Request image from Web Worker
+    worker.postMessage({
+        element: "planets",
+        seed: seed,
+        frameCount: frameCount,
+        data: planets
+    })
+
     planetLayer.clear()
-    planetLayer.reset()
-    planetLayer.translate(width / 2, height / 2)
+    planetLayer.noSmooth()
 
     let planetPointer = sun.size
 
@@ -176,9 +204,14 @@ function drawPlanets() {
         let planetSafeAngle = planetRadius / planetDist
 
         // Draw planet
-        planetLayer.fill(color(planet.colors[0][0], planet.colors[0][1], planet.colors[0][2]))
-        planetLayer.noStroke()
-        planetLayer.circle(cos(planetAngle) * planetDist, sin(planetAngle) * planetDist, planetRadius)
+        if (planetImages) {
+            const planetImage = planetImages[i].image
+            planetLayer.reset()
+            planetLayer.translate(width / 2, height / 2)
+            planetLayer.translate(cos(planetAngle) * planetDist, sin(planetAngle) * planetDist)
+            planetLayer.rotate(planet.rot * TWO_PI + planet.rotSpeed * frameCount / (planet.size * 100))
+            planetLayer.image(planetImage, -planetRadius, -planetRadius, planetRadius * 2, planetRadius * 2)
+        }
 
         let moonPointer = planet.size
         // Draw moons
@@ -192,14 +225,21 @@ function drawPlanets() {
             const moonSafeAngle = moonRadius / moonDist
 
             // Draw moon
-            planetLayer.fill(color(moon.colors[0][0], moon.colors[0][1], moon.colors[0][2]))
-            planetLayer.noStroke()
-            planetLayer.circle(cos(planetAngle) * planetDist + cos(moonAngle) * moonDist, sin(planetAngle) * planetDist + sin(moonAngle) * moonDist, moonRadius)
+            if (planetImages) {
+                const moonImage = planetImages[i].moons[j]
+                planetLayer.reset()
+                planetLayer.translate(width / 2, height / 2)
+                planetLayer.translate(cos(planetAngle) * planetDist + cos(moonAngle) * moonDist, sin(planetAngle) * planetDist + sin(moonAngle) * moonDist)
+                planetLayer.rotate(moon.rot * TWO_PI + moon.rotSpeed * frameCount / (moon.size * 100))
+                planetLayer.image(moonImage, -moonRadius, -moonRadius, moonRadius * 2, moonRadius * 2)
+            }
 
             // Draw moon orbit
+            planetLayer.reset()
+            planetLayer.translate(width / 2, height / 2)
             planetLayer.noFill()
             planetLayer.stroke(255, 50)
-            planetLayer.strokeWeight(moonRadius * 0.2)
+            planetLayer.strokeWeight(moonRadius * 0.4)
             planetLayer.arc(cos(planetAngle) * planetDist, sin(planetAngle) * planetDist, moonDist * 2, moonDist * 2, moonAngle + moonSafeAngle, moonAngle - moonSafeAngle)
 
             moonPointer += moon.Area
@@ -209,9 +249,11 @@ function drawPlanets() {
         }
 
         // Draw planet orbit
+        planetLayer.reset()
+        planetLayer.translate(width / 2, height / 2)
         planetLayer.noFill()
         planetLayer.stroke(255, 50)
-        planetLayer.strokeWeight(planetRadius * 0.2)
+        planetLayer.strokeWeight(planetRadius * 0.4)
         planetLayer.arc(0, 0, planetDist * 2, planetDist * 2, planetAngle + planetSafeAngle, planetAngle - planetSafeAngle)
 
         planetPointer += planet.Area

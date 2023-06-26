@@ -5,14 +5,17 @@ class Body {
         dist = random(0.1, 1)
     ) {
         this.colors = [
-            [random(255), random(255), random(255)],
-            [random(255), random(255), random(255)]
+            [random(55, 255), random(55, 255), random(55, 255)],
+            [random(55, 255), random(55, 255), random(55, 255)]
         ]
         this.size = size
         this.dist = dist
         this.area = this.size
         this.moons = []
         this.angle = random()
+        this.rot = random()
+        this.rotSpeed = random(-1, 1)
+        this.threshold = random(0.2, 0.8)
     }
 
     createMoons(n) {
