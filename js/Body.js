@@ -15,6 +15,7 @@ class Body {
         this.angle = random()
         this.rot = random()
         this.rotSpeed = random(-1, 1)
+        this.rotDir = floor(random(2)) * 2 - 1
         this.threshold = random(0.2, 0.8)
     }
 
@@ -30,9 +31,9 @@ class Body {
 
     get Area() {
         let area = this.size
-        this.moons.forEach(obj => {
-            area += (obj.size * 2 + obj.dist)
-        })
+        for (let i = 0; i < this.moons.length; i++){
+            area += (this.moons[i].size * 2 + this.moons[i].dist)
+        }
         return area
     }
 }

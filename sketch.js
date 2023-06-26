@@ -199,9 +199,9 @@ function drawPlanets() {
         // Get values
         const planet = planets[i]
         planetPointer += (planet.Area + planet.dist)
-        const planetDist = (planetPointer + planet.dist) * maxLength / distance
+        const planetDist = planetPointer * maxLength / distance
         const planetRadius = planet.size * maxLength / distance
-        const planetAngle = planet.angle * TWO_PI + frameCount * sun.size * 2000 / (FR * pow(planetDist, 2))
+        const planetAngle = planet.angle * TWO_PI + sun.rotDir * frameCount * sun.size * 2000 / (FR * pow(planetDist, 2))
         let planetSafeAngle = planetRadius * 1.2 / planetDist
 
         // Draw planet
@@ -220,9 +220,9 @@ function drawPlanets() {
             // Get values
             const moon = planet.moons[j]
             moonPointer += (moon.Area + moon.dist)
-            const moonDist = (moonPointer + moon.dist) * maxLength / distance
+            const moonDist = moonPointer * maxLength / distance
             const moonRadius = moon.size * maxLength / distance
-            const moonAngle = moon.angle * TWO_PI + frameCount * planet.size * 200 / (FR * pow(moonDist, 2))
+            const moonAngle = moon.angle * TWO_PI + planet.rotDir * frameCount * planet.size * 800 / (FR * pow(moonDist, 2))
             const moonSafeAngle = moonRadius * 1.2 / moonDist
 
             // Draw moon
