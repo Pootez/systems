@@ -8,6 +8,31 @@
     <title>Systems</title>
 </head>
 
+<style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        width: 100vw;
+        background-color: black;
+        margin: 0;
+        overflow: hidden;
+    }
+
+    #canvas-container {
+        position: absolute;
+    }
+
+    #github-link img {
+        position: absolute;
+        top: 1vmin;
+        left: 1vmin;
+        width: 8vmin;
+        height: 8vmin;
+    }
+</style>
+
 <script src="libraries/p5.min.js"></script>
 <script src="libraries/opensimplex.js"></script>
 
@@ -16,33 +41,6 @@
 <script src="js/Sun.js"></script>
 <script src="js/Body.js"></script>
 <script src="sketch.js"></script>
-
-<style>
-    body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        background-color: black;
-        margin: 0;
-        overflow: hidden;
-    }
-
-    #canvas-container {
-        position: relative;
-    }
-
-    #github-link {
-        position: absolute;
-        top: 1vmin;
-        left: 1vmin;
-    }
-
-    #github-link img {
-        width: 8vmin;
-        height: 8vmin;
-    }
-</style>
 
 <body>
     <div id="canvas-container">
